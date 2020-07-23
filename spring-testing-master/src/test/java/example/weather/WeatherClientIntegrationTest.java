@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -29,7 +30,7 @@ public class WeatherClientIntegrationTest {
 
     @Test
     public void shouldCallWeatherService() throws Exception {
-        wireMockRule.stubFor(get(urlPathEqualTo("/some-test-api-key/53.5511,9.9937"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/data/2.5/onecall"))
                 .willReturn(aResponse()
                         .withBody(FileLoader.read("classpath:weatherApiResponse.json"))
                         .withHeader(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -37,8 +38,8 @@ public class WeatherClientIntegrationTest {
 
         Optional<WeatherResponse> weatherResponse = subject.fetchWeather();
 
-        Optional<WeatherResponse> expectedResponse = Optional.of(new WeatherResponse("Rain"));
-        verify(1, getRequestedFor(urlPathEqualTo("/some-test-api-key/53.5511,9.9937")));
+        Optional<WeatherResponse> expectedResponse = Optional.of(new WeatherResponse(new WeatherResponse.Current(Arrays.asList(new WeatherResponse.Weather("Rain")))));
+        verify(1, getRequestedFor(urlPathEqualTo("/data/2.5/onecall")));
         assertThat(weatherResponse, is(expectedResponse));
     }
 }
