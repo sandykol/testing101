@@ -5,6 +5,7 @@ import au.com.dius.pact.consumer.junit.PactProviderRule;
 import au.com.dius.pact.consumer.junit.PactVerification;
 import au.com.dius.pact.core.model.RequestResponsePact;
 import au.com.dius.pact.core.model.annotations.Pact;
+import au.com.dius.pact.provider.junit.loader.PactFolder;
 import example.helper.FileLoader;
 import org.apache.http.entity.ContentType;
 import org.junit.Rule;
@@ -36,7 +37,8 @@ public class WeatherClientConsumerTest {
         return builder
                 .given("weather forecast data")
                 .uponReceiving("a request for a weather request for Hamburg")
-                    .path("/some-test-api-key/53.5511,9.9937")
+                    .path("/data/2.5/onecall")
+                    .query("appid=some-test-api-key&lat=53.5511&lon=9.9937")
                     .method("GET")
                 .willRespondWith()
                     .status(200)
@@ -49,6 +51,6 @@ public class WeatherClientConsumerTest {
     public void shouldFetchWeatherInformation() throws Exception {
         Optional<WeatherResponse> weatherResponse = weatherClient.fetchWeather();
         assertThat(weatherResponse.isPresent(), is(true));
-        assertThat(weatherResponse.get().getSummary(), is("Rain"));
+        assertThat(weatherResponse.get().getCurrent().getWeather().get(0).main, is("Rain"));
     }
 }
